@@ -9,32 +9,20 @@ import {
 import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
 import ListGroup from 'react-bootstrap/ListGroup';
-import { KEY_LABELS } from './FilmConstants';
+import * as C from './FilmConstants'
+import { FilmDetails } from './FilmDetailsClassSolution';
 
 export class Films extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { films: [], selected: ""};
-    this.selectFilm = this.selectFilm.bind(this);
+    this.state = { films: [] };
   }
 
   async componentDidMount() {
     const response = await fetch(`https://ghibliapi.herokuapp.com/films?fields=id,title`);
     const json = await response.json();
-    this.setState({ films: json, selected: this.props.match.params.id});
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.match.params.id !== this.props.match.params.id) {
-      this.setState( { selected: this.props.match.params.id? this.props.match.params.id : undefined });
-    }
-  }
-  
-  selectFilm(filmId) {
-    if (filmId !== this.state.selected) {
-      this.setState({selected: filmId});
-    } 
+    this.setState({ films: json });
   }
 
   render() {
@@ -50,19 +38,13 @@ export class Films extends React.Component {
                 <ListGroup id="filmList">
                   {
                     this.state.films.map((film, index) => {
-                      const elementClass = (this.state.selected !== null) ? "active" : "";
                       return (
-                        <ListGroup.Item onClick={() => this.selectFilm(film.id)} 
-                                        as={Link} 
-                                        key={film.id} 
+                        <ListGroup.Item as={ Link } 
+                                        key={ film.id } 
                                         action 
                                         variant='light'
-                                        to={
-                                          this.props.match.params.id 
-                                          ? `${this.props.match.path.slice(0, this.props.match.path.lastIndexOf('/'))}/${film.id}` 
-                                          : `${this.props.match.url}/${film.id}`
-                                        }
-                                        className={film.id === this.state.selected? elementClass : ""}>
+                                        to={ this.props.match.params.id ? `${this.props.match.path.slice(0, this.props.match.path.lastIndexOf('/'))}/${film.id}` : `${this.props.match.url}/${film.id}` }
+                                        className={ this.props.match.params.id !== null && film.id === this.props.match.params.id? "active" : ""}>
                           {film.title}
                         </ListGroup.Item>
                       );
@@ -75,7 +57,7 @@ export class Films extends React.Component {
                   <Switch>
                     <Route exact path={`${this.props.match.path}/:id`} component={FilmDetails}/>
                     <Route exact path={`${this.props.match.path}`}>
-                      <SelectFilmScreen />
+                      <C.SelectFilmScreen />
                     </Route>
                   </Switch>
                 </Tab.Content>
@@ -86,62 +68,4 @@ export class Films extends React.Component {
       </Container>
     );
   }
-}
-
-class FilmDetails extends React.Component {
-
-  constructor(props) {
-    super(props);
-    this.state = { filmId: "", film: {}};
-  }
-
-  async componentDidMount() {
-    const response = await fetch(`https://ghibliapi.herokuapp.com/films/` + this.props.match.params.id);
-    const json = await response.json();
-    this.setState({ film: json });
-  }
-
-  async componentDidUpdate(prevProps) {
-    if (prevProps.match.params.id !== this.props.match.params.id) {
-      const id = this.props.match.params.id;
-      const response = await fetch(`https://ghibliapi.herokuapp.com/films/` + id);
-      const json = await response.json();
-      this.setState({ film: json });
-    }
-  }
-
-  getFilmElements() {
-    return Object.entries(this.state.film).map(([key, value], index) => {
-      if (key in KEY_LABELS) {
-        return (        
-          <React.Fragment key={key}>
-            <Col as="dt" lg="3">{KEY_LABELS[key]}</Col>
-            <Col as="dd" lg="9">{value}</Col>
-          </React.Fragment>
-        );
-      }
-      return <React.Fragment key={key}></React.Fragment>;
-    })
-  };
-
-  render() {
-    const film = this.state.film;
-    return (
-      <>
-        <h4 className="display-4">{film.title}</h4>
-        <br/>
-        <Row as="dl">
-          {this.getFilmElements()}
-        </Row>
-      </>
-    );
-  }
-}
-
-function SelectFilmScreen() {
-  return (
-    <h4 className="display-4">
-      <i>Please select a film.</i>
-    </h4>
-  );
 }

@@ -5,6 +5,18 @@ import * as C from './FilmConstants'
 
 export class FilmDetails extends React.Component {
 
+  // 1. Add state variables for "film" and "filmChildren"
+  // 2. Add lifecycle methods:
+  //    a. Get "id" parameter from the match object
+  //    b. Fetch the film and set the film state:
+  //       - upon first time loading 
+  //       - when id is different than previous id 
+  //    c. Generate the film children and set the filmChildren state
+  //       - when film state is different from previous film state
+  // 3. Add an event handler to the class
+  //    a. It should accept id and pass it to the callback provided in the props by the parent
+  //    b. This event handler should be called upon first time loading and when id is different than previous id
+
   constructor(props) {
     super(props);
     this.state = { film: {}, filmChildren: {} };
@@ -12,76 +24,54 @@ export class FilmDetails extends React.Component {
 
   async componentDidMount() {
     const id = this.props.match.params.id;
-    const response = await fetch(`https://ghibliapi.herokuapp.com/films/` + id);
-    const json = await response.json();
-    this.setState({ film: json, filmChildren: {} });
-    
-    if (Object.keys(this.state.film).length > 0) {
-      Object.entries(this.state.film).map( async ([key, value]) => {
-        let formattedValue = value;
-        if (value instanceof Array) {
-          if (value.length !== 1  || value[0].lastIndexOf('/') !== value[0].length - 1) {
-            formattedValue = await fetchChildren(value);
-          }
-          else {
-            formattedValue = "None are currently available in the database";
-          }
-        }
-        this.setState({ filmChildren: {...this.state.filmChildren, [key]: formattedValue} })
-      });
-    }
+    this.handleChange(id);
+    const film = await fetchFilm(id);
+    this.setState({ film: film, filmChildren: {} });
   }
 
   async componentDidUpdate(prevProps, prevState) {
-    if (prevProps.match.params.id !== this.props.match.params.id) {
-      const id = this.props.match.params.id;
-      const response = await fetch(`https://ghibliapi.herokuapp.com/films/` + id);
-      const json = await response.json();
-      this.setState({ film: json });
+    const id = this.props.match.params.id;
+    if (id !== prevProps.match.params.id) {
+      this.handleChange(id);
+      const film = await fetchFilm(id);
+      this.setState({ film: film });
     }
-    if (prevState.film !== this.state.film) {
-      this.setState({ filmChildren: {} });
-      if (Object.keys(this.state.film).length > 0) {
-        Object.entries(this.state.film).map( async ([key, value]) => {
-          let formattedValue = value;
-          if (value instanceof Array) {
-            if (value.length !== 1  || value[0].lastIndexOf('/') !== value[0].length - 1) {
-              formattedValue = await fetchChildren(value);
-            }
-            else {
-              formattedValue = "None are currently available in the database";
-            }
-          }
-          this.setState({ filmChildren: {...this.state.filmChildren, [key]: formattedValue} })
-        });
-      }
+    else if (prevState.film !== this.state.film && Object.keys(this.state.film).length > 0) {
+      this.generateChildren();
     }
   }
-  
 
-  getFilmElements() {
-    return Object.keys(this.state.film).map( key => {
-      let content = ""
-      if (key in C.KEY_LABELS) {
-        let formattedValue = !this.state.filmChildren[key] 
-            ? "Loading..." 
-            : Array.isArray(this.state.filmChildren[key]) 
-            ? JSON.stringify(this.state.filmChildren[key], null, 2) 
-            : this.state.filmChildren[key];
-        return (        
-          <React.Fragment key={key}>
-            <Col as="dt" lg="3">{C.KEY_LABELS[key]}</Col>
-            <Col as="dd" lg="9">{formattedValue}</Col>
-          </React.Fragment>
-        );
+  componentWillUnmount() {
+    this.handleChange("");
+  }
+
+  handleChange(id) {
+    this.props.onIdChange(id);
+  }
+
+  generateChildren() {
+    this.setState({ filmChildren: {} });
+    Object.entries(this.state.film).map( async ([key, value]) => {
+      let formattedValue = value;
+      if (value instanceof Array) {
+        if (value.length !== 1  || value[0].lastIndexOf('/') !== value[0].length - 1) {
+          formattedValue = await fetchChildren(value);
+        }
+        else {
+          formattedValue = "None are currently available in the database";
+        }
       }
-      return <React.Fragment key={key}>{content}</React.Fragment>;
-    })
-  };
+      this.setState((state) => { 
+        return { filmChildren: {...state.filmChildren, [key]: formattedValue} }; 
+      });
+    });
+  }
 
   render() {
     const film = this.state.film;
-    const filmElements = this.getFilmElements();
+    const filmChildren = this.state.filmChildren;
+    const filmElements = getFilmElements(film, filmChildren);
+    
     return (
       <>
         <h4 className="display-4">{film.title}</h4>
@@ -94,6 +84,11 @@ export class FilmDetails extends React.Component {
   }
 }
 
+async function fetchFilm(id) {
+  const response = await fetch(`${C.API_URL}/${id}`);
+  return response.json();
+}
+
 async function fetchChildren(url) {
   const promises = url.map(async item => {
     const response = await fetch(item + '?fields=name');
@@ -104,3 +99,23 @@ async function fetchChildren(url) {
     return value;
   });
 }
+
+function getFilmElements(film, filmChildren) {
+  return Object.keys(film).map( key => {
+    let content = ""
+    if (key in C.KEY_LABELS) {
+      let formattedValue = !filmChildren[key] 
+          ? "Loading..." 
+          : Array.isArray(filmChildren[key]) 
+          ? filmChildren[key].map((item, index) => ( <React.Fragment key={`${filmChildren[key]}-${index}`}>{item.name}<br/></React.Fragment> )) 
+          : filmChildren[key];
+      return (        
+        <React.Fragment key={key}>
+          <Col as="dt" lg="3">{C.KEY_LABELS[key]}</Col>
+          <Col as="dd" lg="9">{formattedValue}</Col>
+        </React.Fragment>
+      );
+    }
+    return <React.Fragment key={key}>{content}</React.Fragment>;
+  })
+};

@@ -16,6 +16,8 @@ export const KEY_LABELS = {
 
 export const INCOMPLETE_FILM_DETAILS = <><Col as="dt" lg="3">Lab</Col><Col as="dd" lg="9">Incomplete</Col></>;
 
+export const API_URL = 'https://ghibliapi.herokuapp.com/films';
+
 export function SelectFilmScreen() {
   return (
     <h4 className="display-4">

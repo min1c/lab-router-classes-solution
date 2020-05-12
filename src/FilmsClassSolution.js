@@ -50,7 +50,7 @@ export class Films extends React.Component {
     return (
       <Container>
         <h3 className="display-3" style={{'marginBottom': '10px'}}>
-          Ghibli Films
+          { !this.state ? "Part 2 Incomplete" : films.length > 0 ? "Ghibli Films" : ""}
         </h3>
         <Row>
           <Tab.Container id="film-list-container">

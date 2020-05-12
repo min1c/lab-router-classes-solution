@@ -68,16 +68,16 @@ export class FilmDetails extends React.Component {
   }
 
   render() {
-    const film = this.state.film;
-    const filmChildren = this.state.filmChildren;
+    const film = this.state ? this.state.film : {} ;
+    const filmChildren = this.state ? this.state.filmChildren : {} ;
     const filmElements = getFilmElements(film, filmChildren);
     
     return (
       <>
-        <h4 className="display-4">{film.title}</h4>
+        <h4 className="display-4">{ !this.state ? "Part 3 Incomplete" : film.title ? film.title : ""}</h4>
         <br/>
         <Row as="dl">
-          { filmElements.length > 0 ? filmElements : C.INCOMPLETE_FILM_DETAILS }
+          { !this.state ? C.INCOMPLETE_3_FULL : filmElements.length > 0 ? filmElements : <></> }
         </Row>
       </>
     );

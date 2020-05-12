@@ -17,13 +17,15 @@ export class Films extends React.Component {
   // 1. Add state variables for "films" and "id"
   // 2. Add a lifecycle method which fetches the films and sets the films state upon first time loading
   // 3. Get the match object in the render method
-  //    Add a "to" property to the ListGroup.Item elements to link to the film details. Use the match object and film.id
-  // 4. Replace the current <C.SelectFilmScreen /> return with  two <Route> components within a <Switch> component
+  //    -  Add a "to" property to the ListGroup.Item elements to link to the film details. Use the match object and film.id
+  // 4. Replace { C.INCOMPLETE_2_FULL } with  two <Route> components within a <Switch> component
   //    a. The first route will render the <FilmDetails> component if the path is exactly the match path + "/:id"
-  //    b. The second route will render the <C.SelectFilmScreen /> component if the path is the match path
+  //    b. The second route will render { C.SELECT_FILM } if the path is the match path
   // 5. Add an event handler to the class
   //    a. It should accept selectedId and set the "id" state to selectedId
   //    b. Pass it as a prop called onIdChange to the FilmDetails component in the route you created in the previous step
+  //    c. Add a "className" property to the ListGroup.Item elements that will conditionally set the class to "active" or "" 
+  //       depending if the state id matches the element's film.id
 
   constructor(props) {
     super(props);
@@ -74,7 +76,7 @@ export class Films extends React.Component {
                   <Switch>
                     <Route exact path={`${match.path}/:id`} render={(props) => <FilmDetails {...props} onIdChange={this.handleIdChange} />} />
                     <Route path={`${match.path}`}>
-                      <C.SelectFilmScreen />
+                      { C.SELECT_FILM }
                     </Route>
                   </Switch>
                 </Tab.Content>

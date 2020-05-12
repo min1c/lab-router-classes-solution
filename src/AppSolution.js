@@ -8,12 +8,13 @@ import {
   NavLink,
 } from "react-router-dom";
 import Container from 'react-bootstrap/Container';
+import * as C from './FilmConstants'
 import { Films } from './FilmsClassSolution';
 
 export default function AppSolution() {
 
-  // 1. Modify the behaviour of the Navbar.Brand and Nav.Link elements to behave as a react-router
-  //    <Link>. Using <Link> will not trigger a full page refresh when navigating within a router. 
+  // 1. Modify the behaviour of the Navbar.Brand and Nav.Link elements to behave as a react-router <NavLink>.
+  //    Using <NavLink> will not trigger a full page refresh when navigating within a router. 
   //    Hint: Use 'as' attribute
   // 2. Replace the current <Home> return with  two <Route> components within a <Switch> component
   //    a. The first route will render the <Films> component if the path is "/films"
@@ -52,37 +53,9 @@ function Home() {
         <li>routing</li>
       </ul>
       <ol>
-        <li>In <strong>App.js</strong>:</li>
-        <ol>
-          <li>
-            {`Modify the behaviour of the Navbar.Brand and Nav.Link elements to behave as a react-router <Link>.`}<br/>
-            <ul>
-              <li>{`Using <Link> will not trigger a full page refresh when navigating within a router.`}</li>
-              <li>{`Hint: Use 'as' attribute`}</li>
-            </ul>
-          </li>
-          <li>
-            {`Replace the current <Home> return with  two <Route> components within a <Switch> component`}
-            <ol type="a">
-              <li>{`The first route will render the <Films> component if the path is "/films"`}</li>
-              <li>{`The second route will render the <Home> component if the path is "/"`}</li>
-            </ol>
-          </li>
-        </ol>
-        <li>In <strong>FilmClass.js</strong>:</li>
-        <ol>
-          <li>a</li>
-          <li>a</li>
-          <li>a</li>
-          <li>a</li>
-        </ol>
-        <li>In <strong>FilmDetailsClass.js</strong>:</li>
-        <ol>
-          <li>a</li>
-          <li>a</li>
-          <li>a</li>
-          <li>a</li>
-        </ol>
+        {C.INCOMPLETE_1_HTML}<br/>
+        {C.INCOMPLETE_2_HTML}<br/>
+        {C.INCOMPLETE_3_HTML}
       </ol>
     </Container>);
 }

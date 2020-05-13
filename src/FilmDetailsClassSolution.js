@@ -102,7 +102,6 @@ async function fetchChildren(url) {
 
 function getFilmElements(film, filmChildren) {
   return Object.keys(film).map( key => {
-    let content = ""
     if (key in C.KEY_LABELS) {
       let formattedValue = !filmChildren[key] 
           ? "Loading..." 
@@ -116,6 +115,6 @@ function getFilmElements(film, filmChildren) {
         </React.Fragment>
       );
     }
-    return <React.Fragment key={key}>{content}</React.Fragment>;
+    return <React.Fragment key={key}></React.Fragment>;
   })
 };
